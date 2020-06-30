@@ -9,5 +9,6 @@ const (
 
 // Collector interface implement Collect function
 type Collector interface {
+	Describe(ch chan<- *prometheus.Desc)
 	Collect(ch chan<- prometheus.Metric)
 }
