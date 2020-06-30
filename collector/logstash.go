@@ -9,5 +9,5 @@ const (
 
 // Collector interface implement Collect function
 type Collector interface {
-	Collect(ch chan<- prometheus.Metric) (err error)
+	Collect(ch chan<- prometheus.Metric)
 }

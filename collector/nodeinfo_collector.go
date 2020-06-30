@@ -10,6 +10,7 @@ import (
 type NodeInfoCollector struct {
 	endpoint string
 
+	Error     prometheus.Gauge
 	NodeInfos *prometheus.Desc
 	OsInfos   *prometheus.Desc
 	JvmInfos  *prometheus.Desc
@@ -21,6 +22,13 @@ func NewNodeInfoCollector(logstashEndpoint string) (Collector, error) {
 
 	return &NodeInfoCollector{
 		endpoint: logstashEndpoint,
+
+		Error: prometheus.NewGauge(prometheus.GaugeOpts{
+			Namespace: Namespace,
+			Subsystem: subsystem,
+			Name:      "last_scrape_error",
+			Help:      "Whether the last scrape of metrics from logstash resulted in an error (1 for error, 0 for success).",
+		}),
 
 		NodeInfos: prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, subsystem, "node"),
@@ -46,12 +54,14 @@ func NewNodeInfoCollector(logstashEndpoint string) (Collector, error) {
 }
 
 // Collect function implements nodestats_collector collector
-func (c *NodeInfoCollector) Collect(ch chan<- prometheus.Metric) error {
+func (c *NodeInfoCollector) Collect(ch chan<- prometheus.Metric) {
 	stats, err := NodeInfo(c.endpoint)
 	if err != nil {
-		return err
+		c.Error.Set(1)
+		return
 	}
 
+	ch <- c.Error
 	ch <- prometheus.MustNewConstMetric(
 		c.NodeInfos,
 		prometheus.CounterValue,
@@ -78,5 +88,4 @@ func (c *NodeInfoCollector) Collect(ch chan<- prometheus.Metric) error {
 		stats.Jvm.VMVendor,
 	)
 
-	return nil
 }

@@ -357,7 +357,7 @@ func NewNodeStatsCollector(logstashEndpoint string) (Collector, error) {
 }
 
 // Collect function implements nodestats_collector collector
-func (c *NodeStatsCollector) Collect(ch chan<- prometheus.Metric) error {
+func (c *NodeStatsCollector) Collect(ch chan<- prometheus.Metric) {
 	stats, err := NodeStats(c.endpoint)
 	if err != nil {
 		ch <- prometheus.MustNewConstMetric(
@@ -366,7 +366,7 @@ func (c *NodeStatsCollector) Collect(ch chan<- prometheus.Metric) error {
 			0,
 		)
 
-		return err
+		return
 	}
 
 	ch <- prometheus.MustNewConstMetric(
@@ -387,7 +387,6 @@ func (c *NodeStatsCollector) Collect(ch chan<- prometheus.Metric) error {
 	}
 	c.collectPipelines(pipelines, ch)
 
-	return nil
 }
 
 func (c *NodeStatsCollector) collectJVM(stats NodeStatsResponse, ch chan<- prometheus.Metric) {
