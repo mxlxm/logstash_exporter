@@ -357,7 +357,7 @@ func NewNodeStatsCollector(logstashEndpoint string) (Collector, error) {
 }
 
 func (c *NodeStatsCollector) Describe(ch chan<- *prometheus.Desc) {
-	ch <- c.Up.Desc()
+	ch <- c.Up
 }
 
 // Collect function implements nodestats_collector collector
